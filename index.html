@@ -16,7 +16,7 @@ h1{font-family:'Alagard',serif;font-weight:400;font-size:52px;margin:0;color:#e6
 .panel{background:#2a221a;border:3px solid #6b5236;box-shadow:0 0 0 3px #120d09;padding:18px;margin-bottom:22px}
 .panel h2{margin:0 0 4px;font-size:26px;display:flex;align-items:center;gap:10px}
 .tag{font-size:14px;padding:2px 8px;border:2px solid currentColor}
-.buy .tag{color:#ff8a7a}.sell .tag{color:#8fe08a}
+.buy>h2{color:#ff8a7a}.sell>h2{color:#8fe08a}
 .cols{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
 .row{display:grid;grid-template-columns:32px 36px 210px minmax(0,1fr) 170px 80px 96px 64px 44px;gap:8px;margin-top:8px;align-items:center}
 .head{color:#b8a27a;font-size:13px;text-transform:uppercase;letter-spacing:1px}
@@ -64,7 +64,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 
 <div class="cols">
 <section class="panel buy" id="buyP">
-<h2>Buying <span class="tag">WTB</span></h2>
+<h2>Buying</h2>
 <div class="row head"><span></span><span>Show</span><span>Icon</span><span>Item</span><span>Material</span><span>Qty</span><span>Price</span><span>Unit</span><span></span></div>
 <div id="buyRows"></div>
 <div class="actions"><button data-add="buy">+ Add item</button></div>
@@ -74,7 +74,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 <div class="msg" id="buyMsg" role="status"></div>
 </section>
 <section class="panel sell" id="sellP">
-<h2>Selling <span class="tag">WTS</span></h2>
+<h2>Selling</h2>
 <div class="row head"><span></span><span>Show</span><span>Icon</span><span>Item</span><span>Material</span><span>Qty</span><span>Price</span><span>Unit</span><span></span></div>
 <div id="sellRows"></div>
 <div class="actions"><button data-add="sell">+ Add item</button></div>
