@@ -28,7 +28,7 @@ button.primary{background:#a87414;box-shadow:inset -3px -3px 0 #7a520c,inset 3px
 button.x{padding:0;width:40px;background:#4a2a1a}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .preview{margin-top:14px}
-.preview{overflow-x:auto}.preview img{width:auto;max-width:none;image-rendering:auto;height:auto;display:block;border:2px solid #120d09}
+.preview{overflow-x:auto}.preview img{width:600px;max-width:none;image-rendering:auto;height:auto;display:block;border:2px solid #120d09}
 .msg{min-height:22px;margin-top:8px;color:#e6b230;font-size:15px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
 label{display:block;font-size:13px;color:#b8a27a;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
@@ -127,41 +127,44 @@ function draw(kind){
  const items=S[kind].filter(i=>i.on!==false&&i.name.trim());
  const sub=((kind==='buy'?S.buySub:S.sellSub)||'').trim(),note=((kind==='buy'?S.buyNote:S.sellNote)||'').trim();
  const sh=S[kind+'Head']!==false&&!!sub,sf=S[kind+'Foot']!==false&&!!note;
- const W=900,ROW=56,GAP=6,PADX=66;
+ const D=2,W=600,ROW=44,GAP=4,PADX=40,SLOT=40,FONT="'Alagard', serif";
  const listH=items.length?items.length*ROW+(items.length-1)*GAP:ROW;
- const TOP=58+76+(sh?40:0)+22, BOT=(sf?52:14)+58;
- const H=Math.max(300,TOP+listH+BOT);
- const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+ const TOP=30+50+(sh?26:0)+12, BOT=(sf?30:6)+32;
+ const H=Math.max(150,TOP+listH+BOT);
+ const c=document.createElement('canvas');c.width=W*D;c.height=H*D;const x=c.getContext('2d');
  x.imageSmoothingEnabled=false;
+ scroll(x,W*D,H*D);
+ x.setTransform(D,0,0,D,0,0);x.imageSmoothingEnabled=false;
  const acc=kind==='buy'?'#7a1410':'#1f4f22';
- scroll(x,W,H);
  const title=kind==='buy'?'Buying':'Selling';
- x.textAlign='center';x.textBaseline='alphabetic';x.font=`400 64px 'Alagard', serif`;
- const tw=x.measureText(title).width;const ty=58+60;
- x.fillStyle='rgba(90,60,20,.35)';x.fillText(title,W/2+3,ty+3);x.fillStyle=acc;x.fillText(title,W/2,ty);
- const g=IMG['_gold'];if(g&&g.width){x.drawImage(g,Math.round(W/2-tw/2-28-g.width),Math.round(ty-28-g.height/2));x.drawImage(g,Math.round(W/2+tw/2+28),Math.round(ty-28-g.height/2))}
- let y=58+76;
- if(sh){x.font=`400 28px 'Alagard', serif`;x.fillStyle='#4a2e14';x.fillText(sub,W/2,y+26);y+=40}
- x.fillStyle='rgba(122,85,48,.55)';x.fillRect(PADX,y+6,W-2*PADX,3);
+ x.textAlign='center';x.textBaseline='alphabetic';x.font=`400 50px ${FONT}`;
+ const tw=x.measureText(title).width;const ty=30+42;
+ x.fillStyle='rgba(90,60,20,.35)';x.fillText(title,W/2+2,ty+2);x.fillStyle=acc;x.fillText(title,W/2,ty);
+ const g=IMG['_gold'];if(g&&g.width){const gw=g.width/2,gh=g.height/2;x.drawImage(g,Math.round(W/2-tw/2-16-gw),Math.round(ty-17-gh/2),gw,gh);x.drawImage(g,Math.round(W/2+tw/2+16),Math.round(ty-17-gh/2),gw,gh)}
+ let y=30+50;
+ if(sh){x.font=`400 19px ${FONT}`;x.fillStyle='#4a2e14';x.fillText(sub,W/2,y+18);y+=26}
+ x.fillStyle='rgba(122,85,48,.55)';x.fillRect(PADX,y+4,W-2*PADX,2);
  y=TOP;const L=PADX,R=W-PADX;
- if(!items.length){x.font=`400 28px 'Alagard', serif`;x.fillStyle='#7a5a34';x.fillText('Add or tick items above to fill this banner',W/2,y+40)}
+ if(!items.length){x.font=`400 19px ${FONT}`;x.fillStyle='#7a5a34';x.fillText('Add or tick items above to fill this banner',W/2,y+26)}
  items.forEach((it,n)=>{
-  const im=tinted(it.icon in IMG?it.icon:'Bag',it.hue);if(im&&im.width){const k=Math.max(1,Math.min(3,Math.floor(46/Math.max(im.width,im.height))));const dw=im.width*k,dh=im.height*k;x.drawImage(im,Math.round(L+(56-dw)/2),Math.round(y+(ROW-dh)/2),dw,dh)}
+  const im=tinted(it.icon in IMG?it.icon:'Bag',it.hue);
+  if(im&&im.width){const kd=Math.max(1,Math.min(4,Math.floor(SLOT*D/Math.max(im.width,im.height))));const dw=im.width*kd/D,dh=im.height*kd/D;
+   x.drawImage(im,Math.round((L+(SLOT-dw)/2)*D)/D,Math.round((y+(ROW-dh)/2)*D)/D,dw,dh)}
   x.textAlign='left';x.textBaseline='middle';
   const unit=(it.unit||'').trim();
-  x.font=`400 32px 'Alagard', serif`;const pw=x.measureText(it.price||'').width;
-  x.font=`400 24px 'Alagard', serif`;const uw=unit?x.measureText(unit).width+6:0;
-  const priceX=R-uw-pw,nx=L+56+14,maxN=priceX-30-nx;
-  fitText(x,it.name,maxN,28,400,"'Alagard', serif");
-  x.fillStyle='#2a170a';x.fillText(it.name,nx,y+ROW/2+2);
-  const ne=nx+x.measureText(it.name).width+14;
-  x.fillStyle='rgba(122,85,48,.7)';for(let d=ne;d<priceX-12;d+=10)x.fillRect(d,y+ROW/2+8,4,4);
-  x.font=`400 32px 'Alagard', serif`;x.fillStyle=acc;x.fillText(it.price||'',priceX,y+ROW/2+2);
-  if(unit){x.font=`400 24px 'Alagard', serif`;x.fillStyle='#6a4a24';x.fillText(unit,priceX+pw+6,y+ROW/2+6)}
-  if(n<items.length-1){x.fillStyle='rgba(122,85,48,.22)';x.fillRect(L+70,y+ROW+GAP/2-1,R-L-70,2)}
+  x.font=`400 26px ${FONT}`;const pw=x.measureText(it.price||'').width;
+  x.font=`400 15px ${FONT}`;const uw=unit?x.measureText(unit).width+4:0;
+  const priceX=R-uw-pw,nx=L+SLOT+10,maxN=priceX-20-nx;
+  fitText(x,it.name,maxN,23,400,FONT);
+  x.fillStyle='#2a170a';x.fillText(it.name,nx,y+ROW/2+1);
+  const ne=nx+x.measureText(it.name).width+8;
+  x.fillStyle='rgba(122,85,48,.7)';for(let d=ne;d<priceX-8;d+=6)x.fillRect(d,y+ROW/2+5,2,2);
+  x.font=`400 26px ${FONT}`;x.fillStyle=acc;x.fillText(it.price||'',priceX,y+ROW/2+1);
+  if(unit){x.font=`400 15px ${FONT}`;x.fillStyle='#6a4a24';x.fillText(unit,priceX+pw+4,y+ROW/2+4)}
+  if(n<items.length-1){x.fillStyle='rgba(122,85,48,.22)';x.fillRect(nx,y+ROW+GAP/2-0.5,R-nx,1)}
   y+=ROW+GAP;
  });
- if(sf){x.textAlign='center';x.textBaseline='alphabetic';x.font=`400 26px 'Alagard', serif`;x.fillStyle='#4a2e14';x.fillText(note,W/2,H-58-10)}
+ if(sf){x.textAlign='center';x.textBaseline='alphabetic';x.font=`400 18px ${FONT}`;x.fillStyle='#4a2e14';x.fillText(note,W/2,H-32-6)}
  return c;
 }
 const canv={};
