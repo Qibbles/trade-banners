@@ -128,7 +128,7 @@ function draw(kind){
  const sub=((kind==='buy'?S.buySub:S.sellSub)||'').trim(),note=((kind==='buy'?S.buyNote:S.sellNote)||'').trim();
  const sh=S[kind+'Head']!==false&&!!sub,sf=S[kind+'Foot']!==false&&!!note;
  const D=2,W=600,ROW=44,GAP=4,PADX=40,SLOT=40,FONT="'Alagard', serif";
- const listH=items.length?items.length*ROW+(items.length-1)*GAP:ROW;
+ const RH=it=>(it.qty||'').trim()?60:ROW;const listH=items.length?items.reduce((t,it)=>t+RH(it),0)+(items.length-1)*GAP:ROW;
  const TOP=30+50+(sh?26:0)+12, BOT=(sf?30:6)+32;
  const H=Math.max(150,TOP+listH+BOT);
  const c=document.createElement('canvas');c.width=W*D;c.height=H*D;const x=c.getContext('2d');
@@ -149,23 +149,22 @@ function draw(kind){
  items.forEach((it,n)=>{
   const im=tinted(it.icon in IMG?it.icon:'Bag',it.hue);
   if(im&&im.width){const kd=Math.max(1,Math.min(5,Math.floor(SLOT*D/Math.max(im.width,im.height))));const dw=im.width*kd/D,dh=im.height*kd/D;
-   x.drawImage(im,Math.round((L+(SLOT-dw)/2)*D)/D,Math.round((y+(ROW-dh)/2)*D)/D,dw,dh)}
+   x.drawImage(im,Math.round((L+(SLOT-dw)/2)*D)/D,Math.round((y+(RH(it)-dh)/2)*D)/D,dw,dh)}
   x.textAlign='left';x.textBaseline='middle';
   const unit=(it.unit||'').trim();
   x.font=`400 26px ${FONT}`;const pw=x.measureText(it.price||'').width;
   x.font=`400 15px ${FONT}`;const uw=unit?x.measureText(unit).width+4:0;
-  const qty=(it.qty||'').trim(),qt=qty?'x'+qty:'';
-  x.font=`400 20px ${FONT}`;const qw=qt?x.measureText(qt).width+16:0;
-  const priceX=R-uw-pw,nx=L+SLOT+10,maxN=priceX-20-nx-qw;
+  const qty=(it.qty||'').trim(),rh=RH(it),ny=qty?y+22:y+ROW/2+1;
+  const priceX=R-uw-pw,nx=L+SLOT+10,maxN=priceX-20-nx;
   fitText(x,it.name,maxN,23,400,FONT);
-  x.fillStyle='#2a170a';x.fillText(it.name,nx,y+ROW/2+1);
+  x.fillStyle='#2a170a';x.fillText(it.name,nx,ny);
   let ne=nx+x.measureText(it.name).width+8;
-  if(qt){ne+=8;x.font=`400 20px ${FONT}`;x.fillStyle='#4a2e14';x.fillText(qt,ne,y+ROW/2+2);ne+=qw}
-  x.fillStyle='rgba(122,85,48,.7)';for(let d=ne;d<priceX-8;d+=6)x.fillRect(d,y+ROW/2+5,2,2);
-  x.font=`400 26px ${FONT}`;x.fillStyle=acc;x.fillText(it.price||'',priceX,y+ROW/2+1);
-  if(unit){x.font=`400 15px ${FONT}`;x.fillStyle='#6a4a24';x.fillText(unit,priceX+pw+4,y+ROW/2+4)}
-  if(n<items.length-1){x.fillStyle='rgba(122,85,48,.22)';x.fillRect(nx,y+ROW+GAP/2-0.5,R-nx,1)}
-  y+=ROW+GAP;
+  x.fillStyle='rgba(122,85,48,.7)';for(let d=ne;d<priceX-8;d+=6)x.fillRect(d,ny+4,2,2);
+  x.font=`400 26px ${FONT}`;x.fillStyle=acc;x.fillText(it.price||'',priceX,ny);
+  if(unit){x.font=`400 15px ${FONT}`;x.fillStyle='#6a4a24';x.fillText(unit,priceX+pw+4,ny+3)}
+  if(qty){x.font=`400 16px ${FONT}`;x.fillStyle='#4a2e14';x.fillText('Qty: '+qty,nx,y+44)}
+  if(n<items.length-1){x.fillStyle='rgba(122,85,48,.22)';x.fillRect(nx,y+rh+GAP/2-0.5,R-nx,1)}
+  y+=rh+GAP;
  });
  if(sf){x.textAlign='center';x.textBaseline='alphabetic';x.font=`400 18px ${FONT}`;x.fillStyle='#4a2e14';x.fillText(note,W/2,H-32-6)}
  return c;
