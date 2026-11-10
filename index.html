@@ -226,9 +226,13 @@ document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{
  catch(e){m.textContent='Your browser blocked copying here. Right-click the banner and choose Copy image'+(dl?', or use Download PNG.':'.')}
 });
 let dl=null;
+const plainDl=!window.claude;
+if(plainDl)document.querySelectorAll('.dl').forEach(b=>b.hidden=false);
 (async()=>{try{if(!window.claude)return;dl=await claude.use('downloads');if(dl)document.querySelectorAll('.dl').forEach(b=>b.hidden=false)}catch(e){}})();
 document.querySelectorAll('[data-dl]').forEach(b=>b.onclick=async()=>{
  const k=b.dataset.dl;const m=$(k+'Msg');
+ const fn=(k==='buy'?'wtb':'wts')+'-banner.png';
+ if(plainDl){const blob=await blobOf(k);const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);m.textContent='Downloaded.';return}
  try{const blob=await blobOf(k);await dl.save({filename:(k==='buy'?'wtb':'wts')+'-banner.png',data:blob});m.textContent='Saved.'}catch(e){m.textContent='Download was cancelled or blocked.'}
 });
 function mats(){}
