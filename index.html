@@ -68,7 +68,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 <div class="row head"><span></span><span>Show</span><span>Icon</span><span>Item</span><span>Material</span><span>Price</span><span>Unit</span><span></span></div>
 <div id="buyRows"></div>
 <div class="actions"><button data-add="buy">+ Add item</button></div>
-<div class="opts"><div class="opt"><label class="ck"><input type="checkbox" id="buyHead"> Subtitle</label><input id="buySubT" placeholder="Text under the title" aria-label="Buying subtitle text"></div><div class="opt"><label class="ck"><input type="checkbox" id="buyFoot"> Footer</label><input id="buyNoteT" placeholder="Text at the bottom" aria-label="Buying footer text"></div></div>
+<div class="opts"><div class="opt"><label class="ck" for="buyTitleT">Title</label><input id="buyTitleT" placeholder="Buying" aria-label="Buying title text"></div><div class="opt"><label class="ck"><input type="checkbox" id="buyHead"> Subtitle</label><input id="buySubT" placeholder="Text under the title" aria-label="Buying subtitle text"></div><div class="opt"><label class="ck"><input type="checkbox" id="buyFoot"> Footer</label><input id="buyNoteT" placeholder="Text at the bottom" aria-label="Buying footer text"></div></div>
 <div class="preview"><img id="buyImg" alt="Buying banner preview"></div>
 <div class="actions"><button class="primary" data-copy="buy">Copy image</button><button data-dl="buy" class="dl" hidden>Download PNG</button></div>
 <div class="msg" id="buyMsg" role="status"></div>
@@ -78,7 +78,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 <div class="row head"><span></span><span>Show</span><span>Icon</span><span>Item</span><span>Material</span><span>Price</span><span>Unit</span><span></span></div>
 <div id="sellRows"></div>
 <div class="actions"><button data-add="sell">+ Add item</button></div>
-<div class="opts"><div class="opt"><label class="ck"><input type="checkbox" id="sellHead"> Subtitle</label><input id="sellSubT" placeholder="Text under the title" aria-label="Selling subtitle text"></div><div class="opt"><label class="ck"><input type="checkbox" id="sellFoot"> Footer</label><input id="sellNoteT" placeholder="Text at the bottom" aria-label="Selling footer text"></div></div>
+<div class="opts"><div class="opt"><label class="ck" for="sellTitleT">Title</label><input id="sellTitleT" placeholder="Selling" aria-label="Selling title text"></div><div class="opt"><label class="ck"><input type="checkbox" id="sellHead"> Subtitle</label><input id="sellSubT" placeholder="Text under the title" aria-label="Selling subtitle text"></div><div class="opt"><label class="ck"><input type="checkbox" id="sellFoot"> Footer</label><input id="sellNoteT" placeholder="Text at the bottom" aria-label="Selling footer text"></div></div>
 <div class="preview"><img id="sellImg" alt="Selling banner preview"></div>
 <div class="actions"><button class="primary" data-copy="sell">Copy image</button><button data-dl="sell" class="dl" hidden>Download PNG</button></div>
 <div class="msg" id="sellMsg" role="status"></div>
@@ -136,8 +136,8 @@ function draw(kind){
  scroll(x,W*D,H*D);
  x.setTransform(D,0,0,D,0,0);x.imageSmoothingEnabled=false;
  const acc=kind==='buy'?'#7a1410':'#1f4f22';
- const title=kind==='buy'?'Buying':'Selling';
- x.textAlign='center';x.textBaseline='alphabetic';x.font=`400 50px ${FONT}`;
+ const title=((kind==='buy'?S.buyTitle:S.sellTitle)||'').trim()||(kind==='buy'?'Buying':'Selling');
+ x.textAlign='center';x.textBaseline='alphabetic';fitText(x,title,W-2*PADX-110,50,400,FONT);
  const tw=x.measureText(title).width;const ty=30+42;
  x.fillStyle='rgba(90,60,20,.35)';x.fillText(title,W/2+2,ty+2);x.fillStyle=acc;x.fillText(title,W/2,ty);
  const g=IMG['_gold'];if(g&&g.width){const gw=g.width/2,gh=g.height/2;x.drawImage(g,Math.round(W/2-tw/2-16-gw),Math.round(ty-17-gh/2),gw,gh);x.drawImage(g,Math.round(W/2+tw/2+16),Math.round(ty-17-gh/2),gw,gh)}
@@ -216,7 +216,7 @@ function startDrag(e,kind,row,hd){
 }
 ['buy','sell'].forEach(k=>{rows(k)});
 ['buy','sell'].forEach(k=>['Head','Foot'].forEach(p=>{const e=$(k+p);e.checked=S[k+p]!==false;e.onchange=()=>{S[k+p]=e.checked;redraw(k);draft()}}));
-function texts(){[['buy','Sub'],['buy','Note'],['sell','Sub'],['sell','Note']].forEach(([k,f])=>{const e=$(k+f+'T');e.value=S[k+f]||'';e.oninput=()=>{S[k+f]=e.value;schedule(k)}})}
+function texts(){[['buy','Title'],['buy','Sub'],['buy','Note'],['sell','Title'],['sell','Sub'],['sell','Note']].forEach(([k,f])=>{const e=$(k+f+'T');e.value=S[k+f]||'';e.oninput=()=>{S[k+f]=e.value;schedule(k)}})}
 texts();
 document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const k=b.dataset.add;S[k].push({on:true,icon:'Bag',hue:0,name:'',price:'',unit:'ea'});rows(k);const ins=$(k+'Rows').querySelectorAll('.nm input');ins[ins.length-1].focus();draft()});
 function blobOf(kind){return new Promise(res=>canv[kind].toBlob(res,'image/png'))}
