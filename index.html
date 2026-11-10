@@ -154,13 +154,13 @@ function draw(kind){
   const unit=(it.unit||'').trim();
   x.font=`400 26px ${FONT}`;const pw=x.measureText(it.price||'').width;
   x.font=`400 15px ${FONT}`;const uw=unit?x.measureText(unit).width+4:0;
-  const qty=(it.qty||'').trim(),qt=qty?'\u00d7'+qty:'';
-  x.font=`400 17px ${FONT}`;const qw=qt?x.measureText(qt).width+8:0;
+  const qty=(it.qty||'').trim(),qt=qty?'x'+qty:'';
+  x.font=`400 20px ${FONT}`;const qw=qt?x.measureText(qt).width+8:0;
   const priceX=R-uw-pw,nx=L+SLOT+10,maxN=priceX-20-nx-qw;
   fitText(x,it.name,maxN,23,400,FONT);
   x.fillStyle='#2a170a';x.fillText(it.name,nx,y+ROW/2+1);
   let ne=nx+x.measureText(it.name).width+8;
-  if(qt){x.font=`400 17px ${FONT}`;x.fillStyle='#6a4a24';x.fillText(qt,ne,y+ROW/2+3);ne+=qw}
+  if(qt){x.font=`400 20px ${FONT}`;x.fillStyle='#6a4a24';x.fillText(qt,ne,y+ROW/2+2);ne+=qw}
   x.fillStyle='rgba(122,85,48,.7)';for(let d=ne;d<priceX-8;d+=6)x.fillRect(d,y+ROW/2+5,2,2);
   x.font=`400 26px ${FONT}`;x.fillStyle=acc;x.fillText(it.price||'',priceX,y+ROW/2+1);
   if(unit){x.font=`400 15px ${FONT}`;x.fillStyle='#6a4a24';x.fillText(unit,priceX+pw+4,y+ROW/2+4)}
