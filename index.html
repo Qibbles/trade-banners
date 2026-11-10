@@ -18,7 +18,7 @@ h1{font-family:'Alagard',serif;font-weight:400;font-size:52px;margin:0;color:#e6
 .tag{font-size:14px;padding:2px 8px;border:2px solid currentColor}
 .buy .tag{color:#ff8a7a}.sell .tag{color:#8fe08a}
 .cols{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
-.row{display:grid;grid-template-columns:32px 36px 210px minmax(0,1fr) 170px 96px 64px 44px;gap:8px;margin-top:8px;align-items:center}
+.row{display:grid;grid-template-columns:32px 36px 210px minmax(0,1fr) 170px 80px 96px 64px 44px;gap:8px;margin-top:8px;align-items:center}
 .head{color:#b8a27a;font-size:13px;text-transform:uppercase;letter-spacing:1px}
 input,select{width:100%;font:inherit;background:#120d09;color:#f3e4b9;border:2px solid #6b5236;padding:8px;min-height:44px}
 input:focus,select:focus,button:focus-visible{outline:3px solid #e6b230;outline-offset:1px}
@@ -65,7 +65,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 <div class="cols">
 <section class="panel buy" id="buyP">
 <h2>Buying <span class="tag">WTB</span></h2>
-<div class="row head"><span></span><span>Show</span><span>Icon</span><span>Item</span><span>Material</span><span>Price</span><span>Unit</span><span></span></div>
+<div class="row head"><span></span><span>Show</span><span>Icon</span><span>Item</span><span>Material</span><span>Qty</span><span>Price</span><span>Unit</span><span></span></div>
 <div id="buyRows"></div>
 <div class="actions"><button data-add="buy">+ Add item</button></div>
 <div class="opts"><div class="opt"><label class="ck" for="buyTitleT">Title</label><input id="buyTitleT" placeholder="Buying" aria-label="Buying title text"></div><div class="opt"><label class="ck"><input type="checkbox" id="buyHead"> Subtitle</label><input id="buySubT" placeholder="Text under the title" aria-label="Buying subtitle text"></div><div class="opt"><label class="ck"><input type="checkbox" id="buyFoot"> Footer</label><input id="buyNoteT" placeholder="Text at the bottom" aria-label="Buying footer text"></div></div>
@@ -75,7 +75,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 </section>
 <section class="panel sell" id="sellP">
 <h2>Selling <span class="tag">WTS</span></h2>
-<div class="row head"><span></span><span>Show</span><span>Icon</span><span>Item</span><span>Material</span><span>Price</span><span>Unit</span><span></span></div>
+<div class="row head"><span></span><span>Show</span><span>Icon</span><span>Item</span><span>Material</span><span>Qty</span><span>Price</span><span>Unit</span><span></span></div>
 <div id="sellRows"></div>
 <div class="actions"><button data-add="sell">+ Add item</button></div>
 <div class="opts"><div class="opt"><label class="ck" for="sellTitleT">Title</label><input id="sellTitleT" placeholder="Selling" aria-label="Selling title text"></div><div class="opt"><label class="ck"><input type="checkbox" id="sellHead"> Subtitle</label><input id="sellSubT" placeholder="Text under the title" aria-label="Selling subtitle text"></div><div class="opt"><label class="ck"><input type="checkbox" id="sellFoot"> Footer</label><input id="sellNoteT" placeholder="Text at the bottom" aria-label="Selling footer text"></div></div>
@@ -154,10 +154,13 @@ function draw(kind){
   const unit=(it.unit||'').trim();
   x.font=`400 26px ${FONT}`;const pw=x.measureText(it.price||'').width;
   x.font=`400 15px ${FONT}`;const uw=unit?x.measureText(unit).width+4:0;
-  const priceX=R-uw-pw,nx=L+SLOT+10,maxN=priceX-20-nx;
+  const qty=(it.qty||'').trim(),qt=qty?'\u00d7'+qty:'';
+  x.font=`400 17px ${FONT}`;const qw=qt?x.measureText(qt).width+8:0;
+  const priceX=R-uw-pw,nx=L+SLOT+10,maxN=priceX-20-nx-qw;
   fitText(x,it.name,maxN,23,400,FONT);
   x.fillStyle='#2a170a';x.fillText(it.name,nx,y+ROW/2+1);
-  const ne=nx+x.measureText(it.name).width+8;
+  let ne=nx+x.measureText(it.name).width+8;
+  if(qt){x.font=`400 17px ${FONT}`;x.fillStyle='#6a4a24';x.fillText(qt,ne,y+ROW/2+3);ne+=qw}
   x.fillStyle='rgba(122,85,48,.7)';for(let d=ne;d<priceX-8;d+=6)x.fillRect(d,y+ROW/2+5,2,2);
   x.font=`400 26px ${FONT}`;x.fillStyle=acc;x.fillText(it.price||'',priceX,y+ROW/2+1);
   if(unit){x.font=`400 15px ${FONT}`;x.fillStyle='#6a4a24';x.fillText(unit,priceX+pw+4,y+ROW/2+4)}
@@ -199,7 +202,7 @@ function rows(kind){
   ms.onchange=()=>setHue(ms.value);
   mat.append(ms);
   const nm=mk('name','Item name','Item name');const wrap=document.createElement('div');wrap.className='nm';wrap.appendChild(nm);
-  r.append(hd,cb,sw,wrap,mat,mk('price','1k','Price'),mk('unit','ea','Unit'),del);box.appendChild(r);
+  r.append(hd,cb,sw,wrap,mat,mk('qty','Any','Quantity'),mk('price','1k','Price'),mk('unit','ea','Unit'),del);box.appendChild(r);
  });
 }
 function startDrag(e,kind,row,hd){
@@ -218,7 +221,7 @@ function startDrag(e,kind,row,hd){
 ['buy','sell'].forEach(k=>['Head','Foot'].forEach(p=>{const e=$(k+p);e.checked=S[k+p]!==false;e.onchange=()=>{S[k+p]=e.checked;redraw(k);draft()}}));
 function texts(){[['buy','Title'],['buy','Sub'],['buy','Note'],['sell','Title'],['sell','Sub'],['sell','Note']].forEach(([k,f])=>{const e=$(k+f+'T');e.value=S[k+f]||'';e.oninput=()=>{S[k+f]=e.value;schedule(k)}})}
 texts();
-document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const k=b.dataset.add;S[k].push({on:true,icon:'Bag',hue:0,name:'',price:'',unit:'ea'});rows(k);const ins=$(k+'Rows').querySelectorAll('.nm input');ins[ins.length-1].focus();draft()});
+document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const k=b.dataset.add;S[k].push({on:true,icon:'Bag',hue:0,qty:'',name:'',price:'',unit:'ea'});rows(k);const ins=$(k+'Rows').querySelectorAll('.nm input');ins[ins.length-1].focus();draft()});
 function blobOf(kind){return new Promise(res=>canv[kind].toBlob(res,'image/png'))}
 document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{
  const k=b.dataset.copy;const m=$(k+'Msg');
