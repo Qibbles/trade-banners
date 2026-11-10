@@ -255,7 +255,7 @@ function applyState(n){S=n;S.materials=S.materials||[];S.buy=S.buy||[];S.sell=S.
   if(snap.exists){try{localStorage.setItem('uoTradeDraft4',JSON.stringify(snap.data()))}catch(e){}applyState(JSON.parse(JSON.stringify(snap.data())));st('Loaded your saved lists.')}
   else{loaded=true;await saveNow();}
   loaded=true;
- }catch(e){clearTimeout(timer);loaded=true;if(!docRef)st('Saving to your account isn’t available here; changes are kept in this browser.')}
+ }catch(e){clearTimeout(timer);loaded=true;if(!docRef)st('Your lists are saved in this browser.')}
 })();
 const ready=Promise.all([imgReady,scrReady,document.fonts.load("400 72px 'Alagard'"),document.fonts.load("700 38px 'Pixelify Sans'"),document.fonts.load("600 30px 'Pixelify Sans'"),document.fonts.load("400 22px 'Pixelify Sans'")]).catch(()=>{});
 redraw('buy');redraw('sell');
