@@ -51,6 +51,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 .mrow{display:grid;grid-template-columns:28px minmax(0,1fr) 100px 44px;gap:8px;align-items:center;max-width:560px}
 .sw{width:28px;height:28px;border:2px solid #120d09}
 #status{color:#b8a27a}
+.txt{margin-top:16px;max-width:600px}.txt textarea{width:100%;font:14px/1.45 ui-monospace,Consolas,monospace;background:#120d09;color:#f3e4b9;border:2px solid #6b5236;padding:10px;resize:vertical}.cnt{align-self:center;color:#b8a27a;font-size:14px}.cnt.over{color:#ff8a7a}
 </style>
 </head>
 <body>
@@ -72,6 +73,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 <div class="opts"><div class="opt"><label class="ck" for="buyTitleT">Title</label><input id="buyTitleT" placeholder="Buying" aria-label="Buying title text"></div><div class="opt"><label class="ck"><input type="checkbox" id="buyHead"> Subtitle</label><input id="buySubT" placeholder="Text under the title" aria-label="Buying subtitle text"></div><div class="opt"><label class="ck"><input type="checkbox" id="buyFoot"> Footer</label><input id="buyNoteT" placeholder="Text at the bottom" aria-label="Buying footer text"></div></div>
 <div class="preview"><img id="buyImg" alt="Buying banner preview"></div>
 <div class="actions"><button class="primary" data-copy="buy">Copy image</button><button data-dl="buy" class="dl" hidden>Download PNG</button></div>
+<div class="txt"><label for="buyTxt">Text version (searchable in Discord)</label><textarea id="buyTxt" readonly rows="6"></textarea><div class="actions"><button class="primary" data-copytxt="buy">Copy text</button><span class="cnt" id="buyCnt"></span></div></div>
 <div class="msg" id="buyMsg" role="status"></div>
 </section>
 <section class="panel sell" id="sellP">
@@ -82,6 +84,7 @@ body.drag,body.drag *{cursor:grabbing!important;user-select:none}
 <div class="opts"><div class="opt"><label class="ck" for="sellTitleT">Title</label><input id="sellTitleT" placeholder="Selling" aria-label="Selling title text"></div><div class="opt"><label class="ck"><input type="checkbox" id="sellHead"> Subtitle</label><input id="sellSubT" placeholder="Text under the title" aria-label="Selling subtitle text"></div><div class="opt"><label class="ck"><input type="checkbox" id="sellFoot"> Footer</label><input id="sellNoteT" placeholder="Text at the bottom" aria-label="Selling footer text"></div></div>
 <div class="preview"><img id="sellImg" alt="Selling banner preview"></div>
 <div class="actions"><button class="primary" data-copy="sell">Copy image</button><button data-dl="sell" class="dl" hidden>Download PNG</button></div>
+<div class="txt"><label for="sellTxt">Text version (searchable in Discord)</label><textarea id="sellTxt" readonly rows="6"></textarea><div class="actions"><button class="primary" data-copytxt="sell">Copy text</button><span class="cnt" id="sellCnt"></span></div></div>
 <div class="msg" id="sellMsg" role="status"></div>
 </section>
 </div>
@@ -173,7 +176,20 @@ function draw(kind){
  return c;
 }
 const canv={};
-function redraw(kind){const c=draw(kind);canv[kind]=c;$(kind+'Img').src=c.toDataURL('image/png')}
+function textOf(kind){
+ const items=S[kind].filter(i=>i.on!==false&&i.name.trim());
+ const sub=((kind==='buy'?S.buySub:S.sellSub)||'').trim(),note=((kind==='buy'?S.buyNote:S.sellNote)||'').trim();
+ const title=((kind==='buy'?S.buyTitle:S.sellTitle)||'').trim()||(kind==='buy'?'Buying':'Selling');
+ const out=['**'+title+'**'];
+ if(S[kind+'Head']!==false&&sub)out.push(sub);
+ items.forEach(it=>{const q=(it.qty||'').trim(),u=(it.unit||'').trim(),d=(it.desc||'').trim(),p=(it.price||'').trim();
+  let l='- '+it.name.trim()+(q?' x'+q:'');if(p)l+=': **'+p+(u?' '+u:'')+'**';if(d)l+=' ('+d+')';out.push(l)});
+ if(S[kind+'Foot']!==false&&note)out.push(note);
+ return out.join('\n')}
+function retext(kind){const t=textOf(kind),e=$(kind+'Txt');e.value=t;e.rows=Math.min(14,Math.max(3,t.split('\n').length));const c=$(kind+'Cnt');c.textContent=t.length+' / 2000 characters';c.classList.toggle('over',t.length>2000)}
+function redraw(kind){const c=draw(kind);canv[kind]=c;$(kind+'Img').src=c.toDataURL('image/png');retext(kind)}
+document.querySelectorAll('[data-copytxt]').forEach(b=>b.onclick=async()=>{const k=b.dataset.copytxt,e=$(k+'Txt'),m=$(k+'Msg');
+ try{await navigator.clipboard.writeText(e.value);m.textContent='Text copied. Paste it into Discord.'}catch(err){e.focus();e.select();m.textContent='Press Ctrl+C to copy the selected text.'}});
 let t;function schedule(kind){clearTimeout(t);t=setTimeout(()=>{redraw(kind);draft()},120)}
 
 function rows(kind){
