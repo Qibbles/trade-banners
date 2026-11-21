@@ -176,6 +176,12 @@ function draw(kind){
  return c;
 }
 const canv={};
+function matOf(h){h=+h|0;if(!h)return null;for(const [,list] of PRESETS)for(const [n,v] of list)if(v===h)return n;return null}
+function fullName(it){const name=it.name.trim(),m=matOf(it.hue);if(!m)return name;
+ const alts=m.replace(/ Link$/,'').split(' / ').map(t=>t.trim());
+ if(alts.some(a=>name.toLowerCase().includes(a.toLowerCase())))return name;
+ const ic=(it.icon||'').trim();if(!ic||name.toLowerCase().includes(ic.toLowerCase()))return alts[0]+' '+name;
+ return alts[0]+' '+ic+' - '+name}
 function textOf(kind){
  const items=S[kind].filter(i=>i.on!==false&&i.name.trim());
  const sub=((kind==='buy'?S.buySub:S.sellSub)||'').trim(),note=((kind==='buy'?S.buyNote:S.sellNote)||'').trim();
@@ -183,7 +189,7 @@ function textOf(kind){
  const out=['**'+title+'**'];
  if(S[kind+'Head']!==false&&sub)out.push(sub);
  items.forEach(it=>{const q=(it.qty||'').trim(),u=(it.unit||'').trim(),d=(it.desc||'').trim(),p=(it.price||'').trim();
-  let l='- '+it.name.trim()+(q?' x'+q:'');if(p)l+=': **'+p+(u?' '+u:'')+'**';if(d)l+=' ('+d+')';out.push(l)});
+  let l='- '+fullName(it)+(q?' x'+q:'');if(p)l+=': **'+p+(u?' '+u:'')+'**';if(d)l+=' ('+d+')';out.push(l)});
  if(S[kind+'Foot']!==false&&note)out.push(note);
  return out.join('\n')}
 function retext(kind){const t=textOf(kind),e=$(kind+'Txt');e.value=t;e.rows=Math.min(14,Math.max(3,t.split('\n').length));const c=$(kind+'Cnt');c.textContent=t.length+' / 2000 characters';c.classList.toggle('over',t.length>2000)}
